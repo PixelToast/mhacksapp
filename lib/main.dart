@@ -143,6 +143,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           if (data["id"] == myMAC) {
             infected = true;
             infecting = data["infecting"];
+            platform.invokeMethod("gps").then((List<double> dat) {
+              connection.add(JSON.encode({
+                "type": "gps",
+                "pos": dat,
+              }));
+            });
           }
           if (infecting != null) infecting.removeWhere((id) => id == data["id"]);
         break;
@@ -186,7 +192,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         if (await f.exists() && await f.length() != totalBytes) {
           print("reqing");
           var data = await f.openRead().expand((e) => e).toList();
-          var req = post("http://succ.pxtst.com/hci", body: data);
+          var req = post("http://succ.pxtst.com/hci", body: data, headers: {
+            "clid": myMAC,
+          });
           /*var request = new MultipartRequest("POST", Uri.parse("http://succ.pxtst.com/hci"));
           totalBytes = data.length;
           setState(() {});
